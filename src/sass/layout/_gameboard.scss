@@ -1,0 +1,14 @@
+.container {
+  position: relative;
+  display: grid;
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  border-bottom: 1px solid $color-primary;
+  border-right: 1px solid $color-primary;
+}
+
+.board {
+  display: grid;
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  grid-column: 1 / - 1;
+  grid-row: 1 / - 1;
+}

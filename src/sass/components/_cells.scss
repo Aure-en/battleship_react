@@ -1,0 +1,10 @@
+.cell {
+  border-top: 1px solid $color-primary;
+  border-left: 1px solid $color-primary;
+  width: 30px;
+  height: 30px;
+}
+
+.cell--ship {
+  background-color: $color-secondary;
+}

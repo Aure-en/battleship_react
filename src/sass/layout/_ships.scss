@@ -1,0 +1,14 @@
+.ship {
+  position: absolute;
+  border-bottom: 1px solid $color-primary;
+  border-right: 1px solid $color-primary;
+  display: flex;
+}
+
+.ship--vertical {
+  flex-direction: column;
+}
+
+// .ship--enemy {
+//   display: none;
+// }
