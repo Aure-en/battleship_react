@@ -493,11 +493,11 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
 
       // Check if the ship sunk
       // If it sunk, check if the player won.
-      if (currentBoard.flat().includes(board[x][y])) {
+      if (currentBoard.flat().includes(shipsChart[x][y])) {
         changeCurrentPlayer();
       }
 
-      if (!currentBoard.flat().includes(board[x][y])) {
+      else {
         // There are ships left: we go to the next turn.
         if (currentBoard.flat().filter(item => typeof item === 'number').length !== 0) {
           changeCurrentPlayer();
