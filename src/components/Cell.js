@@ -1,9 +1,9 @@
 import React from 'react'
 
-function Cell({ x, y, wasHit, containsShip, isShipSunk, playerPlay, gameState }) {
+function Cell({ x, y, wasHit, containsShip, isShipSunk, playerPlay, gameState, player }) {
   return (
     <div 
-      className={'cell' + (isShipSunk ? ' cell--sunk' : '')}
+      className={'cell' + (isShipSunk ? ' cell--sunk' : '') + (player === 1 && containsShip ? ' cell--ship' : '')}
       data-x={x} 
       data-y={y}
       onClick={(event) => {

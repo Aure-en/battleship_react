@@ -529,6 +529,7 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
   }
 
   // After the player plays, the computer plays.
+  // 2nd condition is added so that the computer only plays on its opponent's board.
   useEffect(() => {
     if (currentPlayer === 2 && player === 1) {
       computerPlay()
@@ -563,13 +564,14 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
                 isShipSunk={shipsChart[xIndex][yIndex] !== null && !board.flat().includes(shipsChart[xIndex][yIndex])}
                 playerPlay={playerPlay}
                 gameState={gameState}
+                player={player}
               />
             ))}
           </React.Fragment>
         ))}
       </div>
 
-      {player === 1 &&
+      {player === 1 && gameState ==='initialization' &&
       shipsData.map((ship, index) => (
         <Ship
           length={ship.length}
