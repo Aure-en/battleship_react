@@ -15,11 +15,25 @@ function Game() {
     setGameState(gameState)
   }
 
+  const changeCurrentPlayer = () => {
+    setCurrentPlayer(prevPlayer => prevPlayer === 1 ? 2 : 1)
+  }
+
   return (
     <div className='game'>
       <div className='game__boards'>
-        <Gameboard size={10} gameState={gameState} player={1} />
-        <Gameboard size={10} gameState={gameState} player={2} />
+        <Gameboard size={10} 
+          gameState={gameState} 
+          player={1} 
+          changeGameState={changeGameState}
+          changeCurrentPlayer={changeCurrentPlayer} 
+        />
+        <Gameboard 
+          size={10} 
+          gameState={gameState} 
+          player={2} 
+          changeGameState={changeGameState}
+          changeCurrentPlayer={changeCurrentPlayer} />
       </div>
       <Message gameState={gameState} changeGameState={changeGameState} currentPlayer={currentPlayer} />
     </div>

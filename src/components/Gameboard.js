@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Ship from './Ship';
+import Cell from './Cell';
 import shipsData from '../data/shipsData';
 
-function Gameboard({ size, gameState }) {
+function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlayer }) {
 
   // -- STATE VARIABLES AND REFS --
 
-  const [shipsChart, setShipsChart] = useState(
+  const [board, setBoard] = useState(
     Array(size)
       .fill(null)
       .map(() => Array(size).fill(null))
@@ -34,6 +35,15 @@ function Gameboard({ size, gameState }) {
       width: 1
      }
     */
+
+  const [shipsChart, setShipsChart] = useState(
+    Array(size)
+      .fill(null)
+      .map(() => Array(size).fill(null))
+  );
+
+    /* shipsChart is a copy of board that only contains ships positions
+     */
 
   const boardRef = useRef(null);
   const shipsRef = [
@@ -102,7 +112,7 @@ function Gameboard({ size, gameState }) {
 
   // Loops to place all the ships randomly
   const randomPlaceFleet = (board, ships) => {
-    const boardCopy = board;
+    const boardCopy = [...board];
     const placedShips = [];
     for (const ship of ships) {
       const placedShip = randomPlaceShip(boardCopy, ship);
@@ -124,7 +134,7 @@ function Gameboard({ size, gameState }) {
 
     // Update board and ships states.
     setShips(placedShips);
-    setShipsChart(boardCopy);
+    setBoard(boardCopy);
   };
 
   // Once the ships coordinates are determined,
@@ -140,6 +150,7 @@ function Gameboard({ size, gameState }) {
   };
 
   useEffect(() => {
+    player === 1 &&
     ships.forEach((ship, index) => {
       if (!ship.coordinates) return;
       displayShip(shipsRef[index], ship);
@@ -147,7 +158,7 @@ function Gameboard({ size, gameState }) {
   }, [ships]);
 
   useEffect(() => {
-    randomPlaceFleet(shipsChart, shipsData);
+    randomPlaceFleet(board, shipsData);
   }, []);
 
   /* 2. Manually placing the ships.
@@ -227,7 +238,7 @@ function Gameboard({ size, gameState }) {
       // Checks if the spaces are available. If they aren't, find the next available space and place the ship there.
       if (
         !checkSpacesAvailability(
-          shipsChart.map((subArr) =>
+          board.map((subArr) =>
             subArr.map((cell) => (cell === id ? null : cell))
           ),
           coordinates,
@@ -236,7 +247,7 @@ function Gameboard({ size, gameState }) {
         )
       ) {
         coordinates = findNextAvailableSpace(
-          shipsChart.map((subArr) =>
+          board.map((subArr) =>
             subArr.map((cell) => (cell === id ? null : cell))
           ),
           coordinates,
@@ -367,7 +378,7 @@ function Gameboard({ size, gameState }) {
     // If the ship rotated on an occupied space, it is placed on the next available space instead.
     if (
       !checkSpacesAvailability(
-        shipsChart.map((subArr) =>
+        board.map((subArr) =>
           subArr.map((cell) => (cell === ship.id ? null : cell))
         ),
         ship.coordinates,
@@ -376,7 +387,7 @@ function Gameboard({ size, gameState }) {
       )
     ) {
       ship.coordinates = findNextAvailableSpace(
-        shipsChart.map((subArr) =>
+        board.map((subArr) =>
           subArr.map((cell) => (cell === ship.id ? null : cell))
         ),
         ship.coordinates,
@@ -403,7 +414,7 @@ function Gameboard({ size, gameState }) {
   }
 
   const updateBoard = (ship) => {
-    setShipsChart((prevBoard) => {
+    setBoard((prevBoard) => {
       const board = [...prevBoard].map((subArr) =>
         subArr.map((cell) => (cell === ship.id ? null : cell))
       );
@@ -424,6 +435,79 @@ function Gameboard({ size, gameState }) {
     });
   }
 
+  // When the game starts, the ship positions alone is saved in shipsChart
+  useEffect(() => {
+    if (gameState !== 'game') return
+    setShipsChart(prevChart => {
+      const chart = [...prevChart]
+      for (let ship of ships) {
+        for (
+          let x = ship.coordinates.x;
+          x < ship.coordinates.x + ship.length;
+          x += 1
+        ) {
+          for (
+            let y = ship.coordinates.y;
+            y < ship.coordinates.y + ship.width;
+            y += 1
+          ) {
+            chart[x][y] = ship.id;
+          }
+        }
+      }
+      return chart
+    })
+  }, [gameState])
+
+  // -- GAME --
+
+  const handleTurn = (event) => {
+    const cell = event.target
+    const x = cell.dataset.x
+    const y = cell.dataset.y
+
+    // Nothing happens if the player choose a cell he already chose.
+    if (board[x][y] === 'X' || board[x][y] === 'O') return
+
+    // If the cell is empty, we mark the cell as played on and move to the next turn.
+    if (board[x][y] === null ) {
+      setBoard(prevBoard => {
+        const board = [...prevBoard];
+        board[x][y] = 'X';
+        return board;
+      })
+      changeCurrentPlayer();
+    }
+
+    /* If the cell contains a ship:
+    1. The cell is marked with a 'O'
+    2. Check if the ship sunk
+    3. If it sunk, check if it was the last ship.
+    */
+
+    if (typeof board[x][y] === 'number') {
+      // Marks the cell with a 'O'
+      const currentBoard = [...board]
+      currentBoard[x][y] = 'O'
+      setBoard(currentBoard)
+
+      // Check if the ship sunk
+      // If it sunk, check if the player won.
+      if (currentBoard.flat().includes(board[x][y])) {
+        changeCurrentPlayer();
+      }
+
+      if (!currentBoard.flat().includes(board[x][y])) {
+        // There are ships left: we go to the next turn.
+        if (currentBoard.flat().filter(item => typeof item === 'number').length !== 0) {
+          changeCurrentPlayer();
+        } else {
+          changeGameState('end')
+        }
+      }
+    }
+  }
+
   return (
     <div 
       className='container' 
@@ -440,21 +524,26 @@ function Gameboard({ size, gameState }) {
       ref={boardRef}
     >
       <div className='board'>
-        {shipsChart.map((x, xIndex) => (
+        {board.map((x, xIndex) => (
           <React.Fragment key={xIndex}>
             {x.map((y, yIndex) => (
-              <div
+              <Cell
                 key={`${xIndex}-${yIndex}`}
-                className='cell'
-                data-x={xIndex}
-                data-y={yIndex}
+                x={xIndex}
+                y={yIndex}
+                wasHit={board[xIndex][yIndex] === 'X' || board[xIndex][yIndex] === 'O'}
+                containsShip={shipsChart[xIndex][yIndex] !== null}
+                isShipSunk={shipsChart[xIndex][yIndex] !== null && !board.flat().includes(shipsChart[xIndex][yIndex])}
+                handleTurn={handleTurn}
+                gameState={gameState}
               />
             ))}
           </React.Fragment>
         ))}
       </div>
 
-      {shipsData.map((ship, index) => (
+      {player === 1 &&
+      shipsData.map((ship, index) => (
         <Ship
           length={ship.length}
           id={ship.id}
@@ -462,6 +551,7 @@ function Gameboard({ size, gameState }) {
           ref={shipsRef[index]}
         />
       ))}
+
     </div>
   );
 }
