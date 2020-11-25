@@ -246,34 +246,11 @@ function Gameboard({ size }) {
       }
 
       // Update ships state variable and board with the new coordinates
+      const ship = Object.assign({}, ships[id]);
+      ship.coordinates = coordinates;
 
-      setShips((prevShips) => {
-        const newShip = Object.assign(prevShips[id]);
-        newShip.coordinates = coordinates;
-        return prevShips.map((ship) =>
-          ship.id === newShip.id ? newShip : ship
-        );
-      });
-
-      setBoard((prevBoard) => {
-        const newBoard = [...prevBoard].map((subArr) =>
-          subArr.map((cell) => (cell === id ? null : cell))
-        );
-        for (
-          let x = coordinates.x;
-          x < coordinates.x + ships[id].length;
-          x += 1
-        ) {
-          for (
-            let y = coordinates.y;
-            y < coordinates.y + ships[id].width;
-            y += 1
-          ) {
-            newBoard[x][y] = id;
-          }
-        }
-        return newBoard;
-      });
+      updateShips(ship);
+      updateBoard(ship);
 
       // Finish dragging
       shipsRef[id].current.style.left = '';
@@ -406,8 +383,15 @@ function Gameboard({ size }) {
         ship.width
       );
     }
-    // Update ships and board state variables
 
+    // Update ships and board state variables
+    updateShips(ship)
+    updateBoard(ship)
+
+  };
+
+  // Helper functions to update ships and board state variables when we move a specific ship / board.
+  const updateShips = (ship) => {
     setShips(prevShips => prevShips.map(prevShip => {
       if (prevShip.id === ship.id) {
         return ship
@@ -415,10 +399,12 @@ function Gameboard({ size }) {
         return prevShip
       }
     }))
+  }
 
+  const updateBoard = (ship) => {
     setBoard((prevBoard) => {
-      const newBoard = [...prevBoard].map((subArr) =>
-        subArr.map((cell) => (cell === id ? null : cell))
+      const board = [...prevBoard].map((subArr) =>
+        subArr.map((cell) => (cell === ship.id ? null : cell))
       );
       for (
         let x = ship.coordinates.x;
@@ -430,13 +416,12 @@ function Gameboard({ size }) {
           y < ship.coordinates.y + ship.width;
           y += 1
         ) {
-          newBoard[x][y] = ship.id;
+          board[x][y] = ship.id;
         }
       }
-      return newBoard;
+      return board;
     });
-
-  };
+  }
 
   return (
     <div 
