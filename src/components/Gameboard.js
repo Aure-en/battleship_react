@@ -3,11 +3,20 @@ import Ship from './Ship';
 import shipsData from '../data/shipsData';
 
 function Gameboard({ size }) {
+
+  // -- STATE VARIABLES AND REFS --
+
   const [board, setBoard] = useState(
     Array(size)
       .fill(null)
-      .map(() => Array(size).fill(null)),
+      .map(() => Array(size).fill(null))
   );
+  
+    /* board is an array that initially contains:
+    - null if the space is empty
+    - a number (=the ship id) if it contains a ship
+    */
+  
   const [ships, setShips] = useState([
     { id: 1 },
     { id: 2 },
@@ -15,6 +24,16 @@ function Gameboard({ size }) {
     { id: 4 },
     { id: 5 },
   ]);
+
+    /* ships is an array that contains ship objects.
+    A ship looks something like this:
+     {
+      id: 1,
+      coordinates: {x: 0, y: 0},
+      length: 5,
+      width: 1
+     }
+    */
 
   const boardRef = useRef(null);
   const shipsRef = [
@@ -34,9 +53,8 @@ function Gameboard({ size }) {
   */
 
   // Generate random orientation.
-  const generateOrientation = (length) => (Math.random() > 0.5
-    ? { length: 1, width: length }
-    : { length, width: 1 });
+  const generateOrientation = (length) =>
+    Math.random() > 0.5 ? { length: 1, width: length } : { length, width: 1 };
 
   // Generate random first coordinates while taking the ship's length into account.
   // Return {x:..., y:... }.
@@ -48,10 +66,8 @@ function Gameboard({ size }) {
   // Check if the ship can be placed on those spaces or if they are already occupied.
   // Return true if the spaces are available, false otherwise.
   const checkSpacesAvailability = (board, coordinates, length, width) => {
-    console.log(coordinates.x, coordinates.y, length, width)
-    for (let row = coordinates.x ; row < coordinates.x + length ; row += 1) {
-      for (let col = coordinates.y ; col < coordinates.y + width ; col += 1) {
-      console.log(row, col)
+    for (let row = coordinates.x; row < coordinates.x + length; row += 1) {
+      for (let col = coordinates.y; col < coordinates.y + width; col += 1) {
         if (board[row][col] !== null) {
           return false;
         }
@@ -72,7 +88,7 @@ function Gameboard({ size }) {
         board,
         coordinates,
         orientation.length,
-        orientation.width,
+        orientation.width
       )
     );
 
@@ -88,15 +104,6 @@ function Gameboard({ size }) {
   const randomPlaceFleet = (board, ships) => {
     const boardCopy = board;
     const placedShips = [];
-
-    /* ship looks something like this:
-     {
-      id: 1,
-      coordinates: {x: 0, y: 0},
-      length: 5,
-      width: 1
-     }
-    */
     for (const ship of ships) {
       const placedShip = randomPlaceShip(boardCopy, ship);
       placedShips.push(placedShip);
@@ -128,7 +135,8 @@ function Gameboard({ size }) {
     } / ${ship.coordinates.x + ship.length + 1} / ${
       ship.coordinates.y + ship.width + 1
     }`;
-    shipElem.current.style.flexDirection = ship.length > ship.width ? 'column' : 'row';
+    shipElem.current.style.flexDirection =
+      ship.length > ship.width ? 'column' : 'row';
   };
 
   useEffect(() => {
@@ -142,13 +150,13 @@ function Gameboard({ size }) {
     randomPlaceFleet(board, shipsData);
   }, []);
 
-  // 2. Manually placing the ships.
-  // Once the ships have been placed automatically at the start,
-  // the user can choose to move / rotate them manually before starting the game.
+  /* 2. Manually placing the ships.
+  Once the ships have been placed automatically at the start,
+  the user can choose to move / rotate them manually before starting the game.
+  */
 
   // Allow players to drag their ships to place them
   const dragOnMouseDown = (event) => {
-
     // Initializing : gets ship, board position, cell size
     if (!event.target.closest('.ship')) return;
     const boardCoords = boardRef.current.getBoundingClientRect();
@@ -161,8 +169,10 @@ function Gameboard({ size }) {
     shipsRef[id].current.style.zIndex = 1000;
 
     // Remember where we click on the ship
-    const shiftX = event.clientX - shipsRef[id].current.getBoundingClientRect().left;
-    const shiftY = event.clientY - shipsRef[id].current.getBoundingClientRect().top;
+    const shiftX =
+      event.clientX - shipsRef[id].current.getBoundingClientRect().left;
+    const shiftY =
+      event.clientY - shipsRef[id].current.getBoundingClientRect().top;
 
     const moveAt = (pageX, pageY) => {
       let left = pageX - shiftX - boardCoords.left;
@@ -175,8 +185,8 @@ function Gameboard({ size }) {
       }
 
       if (
-        left
-        > boardRef.current.clientWidth - shipsRef[id].current.offsetWidth
+        left >
+        boardRef.current.clientWidth - shipsRef[id].current.offsetWidth
       ) {
         left = boardRef.current.clientWidth - shipsRef[id].current.offsetWidth;
       }
@@ -186,8 +196,8 @@ function Gameboard({ size }) {
       }
 
       if (
-        top
-        > boardRef.current.offsetHeight - shipsRef[id].current.offsetHeight
+        top >
+        boardRef.current.offsetHeight - shipsRef[id].current.offsetHeight
       ) {
         top = boardRef.current.offsetHeight - shipsRef[id].current.offsetHeight;
       }
@@ -203,65 +213,81 @@ function Gameboard({ size }) {
     const dragOnMouseUp = () => {
       // Calculate the current position
       let coordinates = {
-        x:
-          Math.round(
-            (shipsRef[id].current.getBoundingClientRect().top
-              - boardCoords.top)
-              / cell,
-          ),
-        y:
-          Math.round(
-            (shipsRef[id].current.getBoundingClientRect().left
-              - boardCoords.left)
-              / cell,
-          ),
+        x: Math.round(
+          (shipsRef[id].current.getBoundingClientRect().top - boardCoords.top) /
+            cell
+        ),
+        y: Math.round(
+          (shipsRef[id].current.getBoundingClientRect().left -
+            boardCoords.left) /
+            cell
+        ),
       };
 
       console.log(
         coordinates,
         checkSpacesAvailability(
-          board.map(subArr => subArr.map(cell => cell === id ? null : cell)),
+          board.map((subArr) =>
+            subArr.map((cell) => (cell === id ? null : cell))
+          ),
           coordinates,
           ships[id].length,
-          ships[id].width,
-        ))
+          ships[id].width
+        )
+      );
 
       // Checks if the spaces are available. If they aren't, find the next available space and place the ship there.
       if (
         !checkSpacesAvailability(
-          board.map(subArr => subArr.map(cell => cell === id ? null : cell)),
+          board.map((subArr) =>
+            subArr.map((cell) => (cell === id ? null : cell))
+          ),
           coordinates,
           ships[id].length,
-          ships[id].width,
+          ships[id].width
         )
       ) {
         coordinates = findNextAvailableSpace(
-          board.map(subArr => subArr.map(cell => cell === id ? null : cell)),
+          board.map((subArr) =>
+            subArr.map((cell) => (cell === id ? null : cell))
+          ),
           coordinates,
           ships[id].length,
-          ships[id].width,
+          ships[id].width
         );
       }
 
       // Update ships state variable and board with the new coordinates
 
-      setShips(prevShips => {
+      setShips((prevShips) => {
         const newShip = Object.assign(prevShips[id]);
         newShip.coordinates = coordinates;
-        console.log(newShip)
-        return prevShips.map(ship => ship.id === newShip.id ? newShip : ship)
-      })
+        console.log(newShip);
+        return prevShips.map((ship) =>
+          ship.id === newShip.id ? newShip : ship
+        );
+      });
 
-      setBoard(prevBoard => {
-        const newBoard = [...prevBoard].map(subArr => subArr.map(cell => cell === id ? null : cell))
-        for (let x = coordinates.x ; x < coordinates.x + ships[id].length ; x +=1) {
-          for (let y = coordinates.y ; y < coordinates.y + ships[id].width ; y +=1) {
+      setBoard((prevBoard) => {
+        const newBoard = [...prevBoard].map((subArr) =>
+          subArr.map((cell) => (cell === id ? null : cell))
+        );
+        for (
+          let x = coordinates.x;
+          x < coordinates.x + ships[id].length;
+          x += 1
+        ) {
+          for (
+            let y = coordinates.y;
+            y < coordinates.y + ships[id].width;
+            y += 1
+          ) {
             newBoard[x][y] = id;
           }
         }
-        console.log(newBoard)
+        console.log(newBoard);
         return newBoard;
-      })
+      });
 
       // Finish dragging
       shipsRef[id].current.style.left = '';
@@ -282,7 +308,7 @@ function Gameboard({ size }) {
     board,
     originalCoordinates,
     length,
-    width,
+    width
   ) => {
     let coordinates = originalCoordinates;
     let radius = 1;
@@ -292,13 +318,13 @@ function Gameboard({ size }) {
     while (!checkSpacesAvailability(board, coordinates, length, width)) {
       for (let i = 0; i <= radius; i += 1) {
         if (
-          coordinates.x - i > 0
-          && coordinates.y - (radius - i) > 0
-          && checkSpacesAvailability(
+          coordinates.x - i > 0 &&
+          coordinates.y - (radius - i) > 0 &&
+          checkSpacesAvailability(
             board,
             { x: coordinates.x - i, y: coordinates.y - (radius - i) },
             length,
-            width,
+            width
           )
         ) {
           coordinates = {
@@ -306,13 +332,13 @@ function Gameboard({ size }) {
             y: coordinates.y - (radius - i),
           };
         } else if (
-          coordinates.x - i > 0
-          && coordinates.y + (radius - i) < size - length
-          && checkSpacesAvailability(
+          coordinates.x - i > 0 &&
+          coordinates.y + (radius - i) < size - length &&
+          checkSpacesAvailability(
             board,
             { x: coordinates.x - i, y: coordinates.y + (radius - i) },
             length,
-            width,
+            width
           )
         ) {
           coordinates = {
@@ -320,13 +346,13 @@ function Gameboard({ size }) {
             y: coordinates.y + (radius - i),
           };
         } else if (
-          coordinates.x + i < size - length
-          && coordinates.y - (radius - i) > 0
-          && checkSpacesAvailability(
+          coordinates.x + i < size - length &&
+          coordinates.y - (radius - i) > 0 &&
+          checkSpacesAvailability(
             board,
             { x: coordinates.x + i, y: coordinates.y - (radius - i) },
             length,
-            width,
+            width
           )
         ) {
           coordinates = {
@@ -334,13 +360,13 @@ function Gameboard({ size }) {
             y: coordinates.y - (radius - i),
           };
         } else if (
-          coordinates.x + i < size - length
-          && coordinates.y + (radius - i) < size - length
-          && checkSpacesAvailability(
+          coordinates.x + i < size - length &&
+          coordinates.y + (radius - i) < size - length &&
+          checkSpacesAvailability(
             board,
             { x: coordinates.x + i, y: coordinates.y + (radius - i) },
             length,
-            width,
+            width
           )
         ) {
           coordinates = {
@@ -354,30 +380,58 @@ function Gameboard({ size }) {
     return coordinates;
   };
 
+  /* 3. Ships can be rotated on double click
+  - To rotate a ship, we swap its length and width.
+  - If swapping them cause the ship to overflow from the board, we change the coordinates to fit the board.
+  */
+  const rotate = (event) => {
+    // Initializing
+    if (!event.target.closest('.ship')) return;
+    const target = event.target.closest('.ship');
+    const id = +target.id;
+
+    // Swap width and length
+    let ship = Object.assign({}, ships[id])
+    let newWidth = ship.length;
+    let newLength = ship.width;
+
+    // If the ship overflows from the board, its coordinate change to fit the board.
+    if (ship.coordinates.x + newLength > size) ship.coordinates.x = size - newLength
+    if (ship.coordinates.y + newWidth > size) ship.coordinates.y = size - newWidth
+
+    // Update state
+    ship.length = newLength
+    ship.width = newWidth
+    
+    setShips(prevShips => prevShips.map(prevShip => {
+      if (prevShip.id === ship.id) {
+        return ship
+      } else {
+        return prevShip
+      }
+    }))
+  };
 
   return (
     <div 
-      className="container"
-      onMouseDown={dragOnMouseDown}
-      ref={boardRef}>
-
-      <div
-        className="board"
-      >
-
+      className='container' 
+      onMouseDown={dragOnMouseDown} 
+      onDoubleClick={rotate}
+      ref={boardRef}
+    >
+      <div className='board'>
         {board.map((x, xIndex) => (
           <React.Fragment key={xIndex}>
             {x.map((y, yIndex) => (
               <div
                 key={`${xIndex}-${yIndex}`}
-                className="cell"
+                className='cell'
                 data-x={xIndex}
                 data-y={yIndex}
               />
             ))}
           </React.Fragment>
         ))}
-
       </div>
 
       {shipsData.map((ship, index) => (
