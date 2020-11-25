@@ -27,13 +27,15 @@ function Game() {
           player={1} 
           changeGameState={changeGameState}
           changeCurrentPlayer={changeCurrentPlayer} 
+          currentPlayer={currentPlayer}
         />
         <Gameboard 
           size={10} 
           gameState={gameState} 
           player={2} 
           changeGameState={changeGameState}
-          changeCurrentPlayer={changeCurrentPlayer} />
+          changeCurrentPlayer={changeCurrentPlayer}
+          currentPlayer={currentPlayer} />
       </div>
       <Message gameState={gameState} changeGameState={changeGameState} currentPlayer={currentPlayer} />
     </div>

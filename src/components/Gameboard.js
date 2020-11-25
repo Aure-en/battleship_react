@@ -3,7 +3,7 @@ import Ship from './Ship';
 import Cell from './Cell';
 import shipsData from '../data/shipsData';
 
-function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlayer }) {
+function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlayer, currentPlayer }) {
 
   // -- STATE VARIABLES AND REFS --
 
@@ -461,10 +461,30 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
 
   // -- GAME --
 
-  const handleTurn = (event) => {
-    const cell = event.target
-    const x = cell.dataset.x
-    const y = cell.dataset.y
+  /* To play a turn :
+  - Get valid coordinates
+  - Play turn, mark the board, checks if a ship sunk, checks if there was a victory
+  - If there was no victory, change the player.
+  */
+
+  const playerPlay = (event) => {
+    if (board[event.target.dataset.x][event.target.dataset.y] === 'X' || board[event.target.dataset.x][event.target.dataset.y] === 'O' ) return
+    handleTurn(event.target.dataset.x, event.target.dataset.y)
+  }
+
+  const computerPlay = () => {
+    let coordinates;
+    do {
+      coordinates = generateRandomPlay();
+    } while (board[coordinates.x][coordinates.y] === 'X' || board[coordinates.x][coordinates.y] === 'O')
+    handleTurn(coordinates.x, coordinates.y)
+  }
+
+  const generateRandomPlay = () => {
+    return { x: Math.floor(Math.random() * size), y: Math.floor(Math.random() * size)}
+  }
+
+  const handleTurn = (x, y) => {
 
     // Nothing happens if the player choose a cell he already chose.
     if (board[x][y] === 'X' || board[x][y] === 'O') return
@@ -508,6 +528,13 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
     }
   }
 
+  // After the player plays, the computer plays.
+  useEffect(() => {
+    if (currentPlayer === 2 && player === 1) {
+      computerPlay()
+    }
+  }, [currentPlayer])
+
   return (
     <div 
       className='container' 
@@ -534,7 +561,7 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
                 wasHit={board[xIndex][yIndex] === 'X' || board[xIndex][yIndex] === 'O'}
                 containsShip={shipsChart[xIndex][yIndex] !== null}
                 isShipSunk={shipsChart[xIndex][yIndex] !== null && !board.flat().includes(shipsChart[xIndex][yIndex])}
-                handleTurn={handleTurn}
+                playerPlay={playerPlay}
                 gameState={gameState}
               />
             ))}
