@@ -224,18 +224,6 @@ function Gameboard({ size }) {
         ),
       };
 
-      console.log(
-        coordinates,
-        checkSpacesAvailability(
-          board.map((subArr) =>
-            subArr.map((cell) => (cell === id ? null : cell))
-          ),
-          coordinates,
-          ships[id].length,
-          ships[id].width
-        )
-      );
-
       // Checks if the spaces are available. If they aren't, find the next available space and place the ship there.
       if (
         !checkSpacesAvailability(
@@ -262,7 +250,6 @@ function Gameboard({ size }) {
       setShips((prevShips) => {
         const newShip = Object.assign(prevShips[id]);
         newShip.coordinates = coordinates;
-        console.log(newShip);
         return prevShips.map((ship) =>
           ship.id === newShip.id ? newShip : ship
         );
@@ -285,7 +272,6 @@ function Gameboard({ size }) {
             newBoard[x][y] = id;
           }
         }
-        console.log(newBoard);
         return newBoard;
       });
 
@@ -392,17 +378,36 @@ function Gameboard({ size }) {
 
     // Swap width and length
     let ship = Object.assign({}, ships[id])
-    let newWidth = ship.length;
-    let newLength = ship.width;
+    let tempLength = ship.length
+    ship.length = ship.width
+    ship.width = tempLength
 
     // If the ship overflows from the board, its coordinate change to fit the board.
-    if (ship.coordinates.x + newLength > size) ship.coordinates.x = size - newLength
-    if (ship.coordinates.y + newWidth > size) ship.coordinates.y = size - newWidth
+    if (ship.coordinates.x + ship.length > size) ship.coordinates.x = size - ship.length
+    if (ship.coordinates.y + ship.width > size) ship.coordinates.y = size - ship.width
 
-    // Update state
-    ship.length = newLength
-    ship.width = newWidth
-    
+    // If the ship rotated on an occupied space, it is placed on the next available space instead.
+    if (
+      !checkSpacesAvailability(
+        board.map((subArr) =>
+          subArr.map((cell) => (cell === ship.id ? null : cell))
+        ),
+        ship.coordinates,
+        ship.length,
+        ship.width
+      )
+    ) {
+      ship.coordinates = findNextAvailableSpace(
+        board.map((subArr) =>
+          subArr.map((cell) => (cell === ship.id ? null : cell))
+        ),
+        ship.coordinates,
+        ship.length,
+        ship.width
+      );
+    }
+    // Update ships and board state variables
+
     setShips(prevShips => prevShips.map(prevShip => {
       if (prevShip.id === ship.id) {
         return ship
@@ -410,6 +415,27 @@ function Gameboard({ size }) {
         return prevShip
       }
     }))
+
+    setBoard((prevBoard) => {
+      const newBoard = [...prevBoard].map((subArr) =>
+        subArr.map((cell) => (cell === id ? null : cell))
+      );
+      for (
+        let x = ship.coordinates.x;
+        x < ship.coordinates.x + ship.length;
+        x += 1
+      ) {
+        for (
+          let y = ship.coordinates.y;
+          y < ship.coordinates.y + ship.width;
+          y += 1
+        ) {
+          newBoard[x][y] = ship.id;
+        }
+      }
+      return newBoard;
+    });
+
   };
 
   return (
