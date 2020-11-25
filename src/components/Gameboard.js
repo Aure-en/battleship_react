@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import Ship from './Ship';
 import shipsData from '../data/shipsData';
 
-function Gameboard({ size }) {
+function Gameboard({ size, gameState }) {
 
   // -- STATE VARIABLES AND REFS --
 
-  const [board, setBoard] = useState(
+  const [shipsChart, setShipsChart] = useState(
     Array(size)
       .fill(null)
       .map(() => Array(size).fill(null))
@@ -124,7 +124,7 @@ function Gameboard({ size }) {
 
     // Update board and ships states.
     setShips(placedShips);
-    setBoard(boardCopy);
+    setShipsChart(boardCopy);
   };
 
   // Once the ships coordinates are determined,
@@ -147,7 +147,7 @@ function Gameboard({ size }) {
   }, [ships]);
 
   useEffect(() => {
-    randomPlaceFleet(board, shipsData);
+    randomPlaceFleet(shipsChart, shipsData);
   }, []);
 
   /* 2. Manually placing the ships.
@@ -227,7 +227,7 @@ function Gameboard({ size }) {
       // Checks if the spaces are available. If they aren't, find the next available space and place the ship there.
       if (
         !checkSpacesAvailability(
-          board.map((subArr) =>
+          shipsChart.map((subArr) =>
             subArr.map((cell) => (cell === id ? null : cell))
           ),
           coordinates,
@@ -236,7 +236,7 @@ function Gameboard({ size }) {
         )
       ) {
         coordinates = findNextAvailableSpace(
-          board.map((subArr) =>
+          shipsChart.map((subArr) =>
             subArr.map((cell) => (cell === id ? null : cell))
           ),
           coordinates,
@@ -345,7 +345,8 @@ function Gameboard({ size }) {
 
   /* 3. Ships can be rotated on double click
   - To rotate a ship, we swap its length and width.
-  - If swapping them cause the ship to overflow from the board, we change the coordinates to fit the board.
+  - If swapping them causes the ship to overflow from the board, we change the coordinates to fit the board.
+  - If rotating causes the ship to overlap on another ship, we place it on the next available space.
   */
   const rotate = (event) => {
     // Initializing
@@ -366,7 +367,7 @@ function Gameboard({ size }) {
     // If the ship rotated on an occupied space, it is placed on the next available space instead.
     if (
       !checkSpacesAvailability(
-        board.map((subArr) =>
+        shipsChart.map((subArr) =>
           subArr.map((cell) => (cell === ship.id ? null : cell))
         ),
         ship.coordinates,
@@ -375,7 +376,7 @@ function Gameboard({ size }) {
       )
     ) {
       ship.coordinates = findNextAvailableSpace(
-        board.map((subArr) =>
+        shipsChart.map((subArr) =>
           subArr.map((cell) => (cell === ship.id ? null : cell))
         ),
         ship.coordinates,
@@ -402,7 +403,7 @@ function Gameboard({ size }) {
   }
 
   const updateBoard = (ship) => {
-    setBoard((prevBoard) => {
+    setShipsChart((prevBoard) => {
       const board = [...prevBoard].map((subArr) =>
         subArr.map((cell) => (cell === ship.id ? null : cell))
       );
@@ -426,12 +427,20 @@ function Gameboard({ size }) {
   return (
     <div 
       className='container' 
-      onMouseDown={dragOnMouseDown} 
-      onDoubleClick={rotate}
+      onMouseDown={(event) => {
+        if (gameState === 'initialization') {
+          dragOnMouseDown(event)
+        }
+      }} 
+      onDoubleClick={(event) => {
+        if (gameState === 'initialization') {
+          rotate(event)
+        }
+      }} 
       ref={boardRef}
     >
       <div className='board'>
-        {board.map((x, xIndex) => (
+        {shipsChart.map((x, xIndex) => (
           <React.Fragment key={xIndex}>
             {x.map((y, yIndex) => (
               <div
