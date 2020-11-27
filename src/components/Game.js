@@ -12,32 +12,43 @@ function Game() {
   const [currentPlayer, setCurrentPlayer] = useState(1);
 
   const changeGameState = (gameState) => {
-    setGameState(gameState)
-  }
+    setGameState(gameState);
+  };
 
   const changeCurrentPlayer = () => {
-    setCurrentPlayer(prevPlayer => prevPlayer === 1 ? 2 : 1)
+    setCurrentPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
+  };
+
+  const reset = () => {
+    setGameState('initialization')
   }
 
   return (
     <div className='game'>
       <div className='game__boards'>
-        <Gameboard size={10} 
-          gameState={gameState} 
-          player={1} 
-          changeGameState={changeGameState}
-          changeCurrentPlayer={changeCurrentPlayer} 
-          currentPlayer={currentPlayer}
-        />
-        <Gameboard 
-          size={10} 
-          gameState={gameState} 
-          player={2} 
+        <Gameboard
+          size={10}
+          gameState={gameState}
+          player={1}
           changeGameState={changeGameState}
           changeCurrentPlayer={changeCurrentPlayer}
-          currentPlayer={currentPlayer} />
+          currentPlayer={currentPlayer}
+        />
+        <Gameboard
+          size={10}
+          gameState={gameState}
+          player={2}
+          changeGameState={changeGameState}
+          changeCurrentPlayer={changeCurrentPlayer}
+          currentPlayer={currentPlayer}
+        />
       </div>
-      <Message gameState={gameState} changeGameState={changeGameState} currentPlayer={currentPlayer} />
+      <Message
+        gameState={gameState}
+        changeGameState={changeGameState}
+        currentPlayer={currentPlayer}
+        reset={reset}
+      />
     </div>
   );
 }

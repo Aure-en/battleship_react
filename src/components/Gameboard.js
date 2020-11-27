@@ -111,8 +111,8 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
   };
 
   // Loops to place all the ships randomly
-  const randomPlaceFleet = (board, ships) => {
-    const boardCopy = [...board];
+  const randomPlaceFleet = (ships) => {
+    const boardCopy = Array(size).fill(null).map(() => Array(size).fill(null));
     const placedShips = [];
     for (const ship of ships) {
       const placedShip = randomPlaceShip(boardCopy, ship);
@@ -157,9 +157,12 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
     });
   }, [ships]);
 
+  // Place the ships randomly every time a new game begins.
   useEffect(() => {
-    randomPlaceFleet(board, shipsData);
-  }, []);
+    if (gameState !== 'initialization') return
+    randomPlaceFleet(shipsData);
+    setShipsChart(Array(size).fill(null).map(() => Array(size).fill(null)))
+  }, [gameState]);
 
   /* 2. Manually placing the ships.
   Once the ships have been placed automatically at the start,
@@ -438,8 +441,8 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
   // When the game starts, the ship positions alone is saved in shipsChart
   useEffect(() => {
     if (gameState !== 'game') return
-    setShipsChart(prevChart => {
-      const chart = [...prevChart]
+    setShipsChart(() => {
+      const chart = Array(size).fill(null).map(() => Array(size).fill(null))
       for (let ship of ships) {
         for (
           let x = ship.coordinates.x;
@@ -571,6 +574,7 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
         ))}
       </div>
 
+      {/*Ships components are only used before the game, to place the ships.*/}
       {player === 1 && gameState ==='initialization' &&
       shipsData.map((ship, index) => (
         <Ship
