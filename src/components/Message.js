@@ -1,6 +1,7 @@
 import React from 'react'
+import shipsData from '../data/shipsData'
 
-function Message({ gameState, changeGameState, currentPlayer, reset }) {
+function Message({ gameState, changeGameState, currentPlayer, reset, lastShipSunk }) {
   return (
     <div className="text">
 
@@ -20,14 +21,16 @@ function Message({ gameState, changeGameState, currentPlayer, reset }) {
       {gameState === 'game' &&
       <>
         <div className="text__player">Current player: {currentPlayer}</div>
-        <div className="text__ship"></div>
+        {lastShipSunk.player &&
+          <div className="text__ship">Lieutenant {lastShipSunk.player}'s {shipsData[lastShipSunk.ship].name} sunk.</div>
+        }
       </>
       }
 
       {gameState === 'end' &&
       <>
         <div className="test__end">
-          Congratulations, {currentPlayer} won.<br/>
+          Congratulations, Lieutenant {currentPlayer} won.<br/>
           Would you like to play again?</div>
 
       <button type='button' onClick={reset}>Play again</button>

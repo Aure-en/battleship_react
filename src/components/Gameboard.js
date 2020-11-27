@@ -3,8 +3,16 @@ import Ship from './Ship';
 import Cell from './Cell';
 import shipsData from '../data/shipsData';
 
-function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlayer, currentPlayer }) {
-
+function Gameboard({
+  size,
+  gameState,
+  player,
+  changeGameState,
+  changeCurrentPlayer,
+  currentPlayer,
+  changeLastShipSunk,
+  lastShipSunk
+}) {
   // -- STATE VARIABLES AND REFS --
 
   const [board, setBoard] = useState(
@@ -12,12 +20,12 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
       .fill(null)
       .map(() => Array(size).fill(null))
   );
-  
-    /* board is an array that initially contains:
+
+  /* board is an array that initially contains:
     - null if the space is empty
     - a number (=the ship id) if it contains a ship
     */
-  
+
   const [ships, setShips] = useState([
     { id: 1 },
     { id: 2 },
@@ -26,7 +34,7 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
     { id: 5 },
   ]);
 
-    /* ships is an array that contains ship objects.
+  /* ships is an array that contains ship objects.
     A ship looks something like this:
      {
       id: 1,
@@ -42,8 +50,8 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
       .map(() => Array(size).fill(null))
   );
 
-    /* shipsChart is a copy of board that only contains ships positions
-     */
+  /* shipsChart is a copy of board that only contains ships positions
+   */
 
   const boardRef = useRef(null);
   const shipsRef = [
@@ -112,7 +120,9 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
 
   // Loops to place all the ships randomly
   const randomPlaceFleet = (ships) => {
-    const boardCopy = Array(size).fill(null).map(() => Array(size).fill(null));
+    const boardCopy = Array(size)
+      .fill(null)
+      .map(() => Array(size).fill(null));
     const placedShips = [];
     for (const ship of ships) {
       const placedShip = randomPlaceShip(boardCopy, ship);
@@ -151,17 +161,21 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
 
   useEffect(() => {
     player === 1 &&
-    ships.forEach((ship, index) => {
-      if (!ship.coordinates) return;
-      displayShip(shipsRef[index], ship);
-    });
+      ships.forEach((ship, index) => {
+        if (!ship.coordinates) return;
+        displayShip(shipsRef[index], ship);
+      });
   }, [ships]);
 
   // Place the ships randomly every time a new game begins.
   useEffect(() => {
-    if (gameState !== 'initialization') return
+    if (gameState !== 'initialization') return;
     randomPlaceFleet(shipsData);
-    setShipsChart(Array(size).fill(null).map(() => Array(size).fill(null)))
+    setShipsChart(
+      Array(size)
+        .fill(null)
+        .map(() => Array(size).fill(null))
+    );
   }, [gameState]);
 
   /* 2. Manually placing the ships.
@@ -369,14 +383,16 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
     const id = +target.id;
 
     // Swap width and length
-    let ship = Object.assign({}, ships[id])
-    let tempLength = ship.length
-    ship.length = ship.width
-    ship.width = tempLength
+    let ship = Object.assign({}, ships[id]);
+    let tempLength = ship.length;
+    ship.length = ship.width;
+    ship.width = tempLength;
 
     // If the ship overflows from the board, its coordinate change to fit the board.
-    if (ship.coordinates.x + ship.length > size) ship.coordinates.x = size - ship.length
-    if (ship.coordinates.y + ship.width > size) ship.coordinates.y = size - ship.width
+    if (ship.coordinates.x + ship.length > size)
+      ship.coordinates.x = size - ship.length;
+    if (ship.coordinates.y + ship.width > size)
+      ship.coordinates.y = size - ship.width;
 
     // If the ship rotated on an occupied space, it is placed on the next available space instead.
     if (
@@ -400,21 +416,22 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
     }
 
     // Update ships and board state variables
-    updateShips(ship)
-    updateBoard(ship)
-
+    updateShips(ship);
+    updateBoard(ship);
   };
 
   // Helper functions to update ships and board state variables when we move a specific ship / board.
   const updateShips = (ship) => {
-    setShips(prevShips => prevShips.map(prevShip => {
-      if (prevShip.id === ship.id) {
-        return ship
-      } else {
-        return prevShip
-      }
-    }))
-  }
+    setShips((prevShips) =>
+      prevShips.map((prevShip) => {
+        if (prevShip.id === ship.id) {
+          return ship;
+        } else {
+          return prevShip;
+        }
+      })
+    );
+  };
 
   const updateBoard = (ship) => {
     setBoard((prevBoard) => {
@@ -436,13 +453,15 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
       }
       return board;
     });
-  }
+  };
 
   // When the game starts, the ship positions alone is saved in shipsChart
   useEffect(() => {
-    if (gameState !== 'game') return
+    if (gameState !== 'game') return;
     setShipsChart(() => {
-      const chart = Array(size).fill(null).map(() => Array(size).fill(null))
+      const chart = Array(size)
+        .fill(null)
+        .map(() => Array(size).fill(null));
       for (let ship of ships) {
         for (
           let x = ship.coordinates.x;
@@ -458,9 +477,9 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
           }
         }
       }
-      return chart
-    })
-  }, [gameState])
+      return chart;
+    });
+  }, [gameState]);
 
   // -- GAME --
 
@@ -471,34 +490,44 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
   */
 
   const playerPlay = (event) => {
-    if (board[event.target.dataset.x][event.target.dataset.y] === 'X' || board[event.target.dataset.x][event.target.dataset.y] === 'O' ) return
-    handleTurn(event.target.dataset.x, event.target.dataset.y)
-  }
+    if (
+      board[event.target.dataset.x][event.target.dataset.y] === 'X' ||
+      board[event.target.dataset.x][event.target.dataset.y] === 'O'
+    )
+      return;
+    handleTurn(event.target.dataset.x, event.target.dataset.y);
+  };
 
   const computerPlay = () => {
     let coordinates;
     do {
       coordinates = generateRandomPlay();
-    } while (board[coordinates.x][coordinates.y] === 'X' || board[coordinates.x][coordinates.y] === 'O')
-    handleTurn(coordinates.x, coordinates.y)
-  }
+    } while (
+      board[coordinates.x][coordinates.y] === 'X' ||
+      board[coordinates.x][coordinates.y] === 'O'
+    );
+    // Small setTimeout to simulate "thinking" time.
+    setTimeout(() => handleTurn(coordinates.x, coordinates.y), 300);
+  };
 
   const generateRandomPlay = () => {
-    return { x: Math.floor(Math.random() * size), y: Math.floor(Math.random() * size)}
-  }
+    return {
+      x: Math.floor(Math.random() * size),
+      y: Math.floor(Math.random() * size),
+    };
+  };
 
   const handleTurn = (x, y) => {
-
     // Nothing happens if the player choose a cell he already chose.
-    if (board[x][y] === 'X' || board[x][y] === 'O') return
+    if (board[x][y] === 'X' || board[x][y] === 'O') return;
 
     // If the cell is empty, we mark the cell as played on and move to the next turn.
-    if (board[x][y] === null ) {
-      setBoard(prevBoard => {
+    if (board[x][y] === null) {
+      setBoard((prevBoard) => {
         const board = [...prevBoard];
         board[x][y] = 'X';
         return board;
-      })
+      });
       changeCurrentPlayer();
     }
 
@@ -510,48 +539,54 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
 
     if (typeof board[x][y] === 'number') {
       // Marks the cell with a 'O'
-      const currentBoard = [...board]
-      currentBoard[x][y] = 'O'
-      setBoard(currentBoard)
+      const currentBoard = [...board];
+      currentBoard[x][y] = 'O';
+      setBoard(currentBoard);
 
       // Check if the ship sunk
-      // If it sunk, check if the player won.
+      // If it didn't sink, we keep on playing normally.
       if (currentBoard.flat().includes(shipsChart[x][y])) {
         changeCurrentPlayer();
       }
 
+      // If it sunk, we checked if there are ships left.
+      // We also announce that a ship fell.
       else {
+        changeLastShipSunk(player, shipsChart[x][y]);
         // There are ships left: we go to the next turn.
-        if (currentBoard.flat().filter(item => typeof item === 'number').length !== 0) {
+        if (
+          currentBoard.flat().filter((item) => typeof item === 'number')
+            .length !== 0
+        ) {
           changeCurrentPlayer();
         } else {
-          changeGameState('end')
+          changeGameState('end');
         }
       }
     }
-  }
+  };
 
   // After the player plays, the computer plays.
   // 2nd condition is added so that the computer only plays on its opponent's board.
   useEffect(() => {
     if (currentPlayer === 2 && player === 1) {
-      computerPlay()
+      computerPlay();
     }
-  }, [currentPlayer])
+  }, [currentPlayer]);
 
   return (
-    <div 
-      className='container' 
+    <div
+      className='container'
       onMouseDown={(event) => {
         if (gameState === 'initialization') {
-          dragOnMouseDown(event)
+          dragOnMouseDown(event);
         }
-      }} 
+      }}
       onDoubleClick={(event) => {
         if (gameState === 'initialization') {
-          rotate(event)
+          rotate(event);
         }
-      }} 
+      }}
       ref={boardRef}
     >
       <div className='board'>
@@ -562,9 +597,14 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
                 key={`${xIndex}-${yIndex}`}
                 x={xIndex}
                 y={yIndex}
-                wasHit={board[xIndex][yIndex] === 'X' || board[xIndex][yIndex] === 'O'}
+                wasHit={
+                  board[xIndex][yIndex] === 'X' || board[xIndex][yIndex] === 'O'
+                }
                 containsShip={shipsChart[xIndex][yIndex] !== null}
-                isShipSunk={shipsChart[xIndex][yIndex] !== null && !board.flat().includes(shipsChart[xIndex][yIndex])}
+                isShipSunk={
+                  shipsChart[xIndex][yIndex] !== null &&
+                  !board.flat().includes(shipsChart[xIndex][yIndex])
+                }
                 playerPlay={playerPlay}
                 gameState={gameState}
                 player={player}
@@ -575,16 +615,16 @@ function Gameboard({ size, gameState, player, changeGameState, changeCurrentPlay
       </div>
 
       {/*Ships components are only used before the game, to place the ships.*/}
-      {player === 1 && gameState ==='initialization' &&
-      shipsData.map((ship, index) => (
-        <Ship
-          length={ship.length}
-          id={ship.id}
-          key={ship.id}
-          ref={shipsRef[index]}
-        />
-      ))}
-
+      {player === 1 &&
+        gameState === 'initialization' &&
+        shipsData.map((ship, index) => (
+          <Ship
+            length={ship.length}
+            id={ship.id}
+            key={ship.id}
+            ref={shipsRef[index]}
+          />
+        ))}
     </div>
   );
 }

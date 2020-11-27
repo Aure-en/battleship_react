@@ -10,6 +10,7 @@ function Game() {
   */
   const [gameState, setGameState] = useState('initialization');
   const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [lastShipSunk, setLastShipSunk] = useState({player: '', ship: ''})
 
   const changeGameState = (gameState) => {
     setGameState(gameState);
@@ -19,8 +20,13 @@ function Game() {
     setCurrentPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
   };
 
+  const changeLastShipSunk = (player, ship) => {
+    setLastShipSunk({ player, ship })
+  }
+
   const reset = () => {
-    setGameState('initialization')
+    setGameState('initialization');
+    setCurrentPlayer(1);
   }
 
   return (
@@ -33,6 +39,8 @@ function Game() {
           changeGameState={changeGameState}
           changeCurrentPlayer={changeCurrentPlayer}
           currentPlayer={currentPlayer}
+          changeLastShipSunk={changeLastShipSunk}
+          lastShipSunk={lastShipSunk}
         />
         <Gameboard
           size={10}
@@ -41,12 +49,15 @@ function Game() {
           changeGameState={changeGameState}
           changeCurrentPlayer={changeCurrentPlayer}
           currentPlayer={currentPlayer}
+          changeLastShipSunk={changeLastShipSunk}
+          lastShipSunk={lastShipSunk}
         />
       </div>
       <Message
         gameState={gameState}
-        changeGameState={changeGameState}
         currentPlayer={currentPlayer}
+        lastShipSunk={lastShipSunk}
+        changeGameState={changeGameState}
         reset={reset}
       />
     </div>
