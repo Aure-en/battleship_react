@@ -11,7 +11,7 @@ function Gameboard({
   changeCurrentPlayer,
   currentPlayer,
   changeLastShipSunk,
-  lastShipSunk
+  changePlayerStats,
 }) {
   // -- STATE VARIABLES AND REFS --
 
@@ -52,6 +52,14 @@ function Gameboard({
 
   /* shipsChart is a copy of board that only contains ships positions
    */
+
+  const [playerStats, setPlayerStats] = useState({
+    hits: 0,
+    accuracy: 0,
+    fleet: shipsData.reduce((sum, current) => sum + +current.length, 0),
+    shipsSunk: [],
+    wins: 0,
+  });
 
   const boardRef = useRef(null);
   const shipsRef = [
@@ -166,17 +174,6 @@ function Gameboard({
         displayShip(shipsRef[index], ship);
       });
   }, [ships]);
-
-  // Place the ships randomly every time a new game begins.
-  useEffect(() => {
-    if (gameState !== 'initialization') return;
-    randomPlaceFleet(shipsData);
-    setShipsChart(
-      Array(size)
-        .fill(null)
-        .map(() => Array(size).fill(null))
-    );
-  }, [gameState]);
 
   /* 2. Manually placing the ships.
   Once the ships have been placed automatically at the start,
@@ -524,11 +521,9 @@ function Gameboard({
     // If the cell is empty, we mark the cell as played on and move to the next turn.
     if (board[x][y] === null) {
       setBoard((prevBoard) => {
-        const board = [...prevBoard];
-        board[x][y] = 'X';
-        return board;
+        prevBoard[x][y] = 'X';
+        return prevBoard;
       });
-      changeCurrentPlayer();
     }
 
     /* If the cell contains a ship:
@@ -545,25 +540,41 @@ function Gameboard({
 
       // Check if the ship sunk
       // If it didn't sink, we keep on playing normally.
-      if (currentBoard.flat().includes(shipsChart[x][y])) {
-        changeCurrentPlayer();
-      }
-
       // If it sunk, we checked if there are ships left.
       // We also announce that a ship fell.
-      else {
+      if (!currentBoard.flat().includes(shipsChart[x][y])) {
         changeLastShipSunk(player, shipsChart[x][y]);
         // There are ships left: we go to the next turn.
         if (
           currentBoard.flat().filter((item) => typeof item === 'number')
-            .length !== 0
+            .length === 0
         ) {
-          changeCurrentPlayer();
-        } else {
           changeGameState('end');
+          setPlayerStats((prevStats) => {
+            const stats = Object.assign({}, prevStats);
+            stats.wins = prevStats.wins + 1;
+            return stats;
+          });
         }
       }
     }
+
+    // At the end of each turn, swap player and update stats.
+    changeCurrentPlayer();
+    setPlayerStats((prevStats) => {
+      const stats = Object.assign({}, prevStats);
+      stats.hits = prevStats.hits + 1;
+      stats.accuracy = board.flat().filter((cell) => cell === 'O').length;
+      stats.fleet =
+        shipsData.reduce((sum, current) => sum + +current.length, 0) -
+        board.flat().filter((cell) => cell === 'O').length;
+      stats.shipsSunk = Array.from(
+        new Set(
+          shipsChart.flat().filter((ship) => !board.flat().includes(ship))
+        )
+      );
+      return stats;
+    });
   };
 
   // After the player plays, the computer plays.
@@ -573,6 +584,50 @@ function Gameboard({
       computerPlay();
     }
   }, [currentPlayer]);
+
+  // -- GAME (RE)START --
+  // - Make player 1 the first player to play
+  // - Reset ships positions
+  // - Reset stats
+
+  // If the current player is player 2, swap it to player 1.
+  useEffect(() => {
+    if (gameState !== 'initialization') return;
+    currentPlayer === 2 && changeCurrentPlayer();
+  }, [gameState]);
+
+  // Place the ships randomly every time a new game begins.
+  useEffect(() => {
+    if (gameState !== 'initialization') return;
+    randomPlaceFleet(shipsData);
+    setShipsChart(
+      Array(size)
+        .fill(null)
+        .map(() => Array(size).fill(null))
+    );
+  }, [gameState]);
+
+  // Reset all stats except the number of wins
+  useEffect(() => {
+    if (gameState !== 'initialization') return;
+    setPlayerStats((prevStats) => {
+      const stats = Object.assign({}, prevStats);
+      stats.hits = 0;
+      stats.accuracy = 0;
+      stats.fleet = shipsData.reduce(
+        (sum, current) => sum + +current.length,
+        0
+      );
+      stats.shipsSunk = [];
+      return stats;
+    });
+  }, [gameState]);
+
+  // -- STATS --
+  // After the stats are updated, the data is sent to <Game /> to be displayed.
+  useEffect(() => {
+    changePlayerStats(playerStats);
+  }, [playerStats]);
 
   return (
     <div

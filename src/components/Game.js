@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Gameboard from './Gameboard';
 import Message from './Message';
 import Stats from './Stats';
+import shipsData from '../data/shipsData';
 
 function Game() {
   /* Game has 3 possible game states :
@@ -12,19 +13,19 @@ function Game() {
   const [gameState, setGameState] = useState('initialization');
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [lastShipSunk, setLastShipSunk] = useState({ player: '', ship: '' });
-  const [player1, setPlayer1] = useState({
-    hits: '',
-    accuracy: '',
-    fleetHP: '',
+  const [player1Stats, setPlayer1Stats] = useState({
+    hits: 0,
+    accuracy: 0,
+    fleet: shipsData.reduce((sum, current) => sum + +current.length, 0),
     shipsSunk: [],
-    wins: '',
+    wins: 0,
   });
-  const [player2, setPlayer2] = useState({
-    hits: '',
-    accuracy: '',
-    fleetHP: '',
+  const [player2Stats, setPlayer2Stats] = useState({
+    hits: 0,
+    accuracy: 0,
+    fleet: shipsData.reduce((sum, current) => sum + +current.length, 0),
     shipsSunk: [],
-    wins: '',
+    wins: 0,
   });
 
   const changeGameState = (gameState) => {
@@ -44,6 +45,14 @@ function Game() {
     setCurrentPlayer(1);
   };
 
+  const changePlayer1Stats = (stats) => {
+    setPlayer1Stats(stats);
+  };
+
+  const changePlayer2Stats = (stats) => {
+    setPlayer2Stats(stats);
+  };
+
   return (
     <div className='game'>
       <div className='game__boards'>
@@ -55,7 +64,7 @@ function Game() {
           changeCurrentPlayer={changeCurrentPlayer}
           currentPlayer={currentPlayer}
           changeLastShipSunk={changeLastShipSunk}
-          lastShipSunk={lastShipSunk}
+          changePlayerStats={changePlayer1Stats}
         />
         <Gameboard
           size={10}
@@ -65,10 +74,9 @@ function Game() {
           changeCurrentPlayer={changeCurrentPlayer}
           currentPlayer={currentPlayer}
           changeLastShipSunk={changeLastShipSunk}
-          lastShipSunk={lastShipSunk}
+          changePlayerStats={changePlayer2Stats}
         />
       </div>
-      <Stats player1={player1} player2={player2} />
       <Message
         gameState={gameState}
         currentPlayer={currentPlayer}
@@ -76,6 +84,7 @@ function Game() {
         changeGameState={changeGameState}
         reset={reset}
       />
+      <Stats player1={player1Stats} player2={player2Stats} />
     </div>
   );
 }
