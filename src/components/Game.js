@@ -11,6 +11,7 @@ function Game() {
   3. End: display the result / winner.
   */
   const [gameState, setGameState] = useState('initialization');
+  const [difficulty, setDifficulty] = useState('normal');
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [lastShipSunk, setLastShipSunk] = useState({ player: '', ship: '' });
   const [player1Stats, setPlayer1Stats] = useState({
@@ -65,6 +66,7 @@ function Game() {
           currentPlayer={currentPlayer}
           changeLastShipSunk={changeLastShipSunk}
           changePlayerStats={changePlayer1Stats}
+          difficulty={difficulty}
         />
         <Gameboard
           size={10}
@@ -75,6 +77,7 @@ function Game() {
           currentPlayer={currentPlayer}
           changeLastShipSunk={changeLastShipSunk}
           changePlayerStats={changePlayer2Stats}
+          difficulty={difficulty}
         />
       </div>
       <Message
@@ -84,7 +87,8 @@ function Game() {
         changeGameState={changeGameState}
         reset={reset}
       />
-      <Stats player1={player1Stats} player2={player2Stats} />
+      <Stats player1={player1Stats} player2={player2Stats}/>
+      <button onClick={() => setDifficulty(difficulty === 'normal' ? 'easy' : 'normal')}>{difficulty}</button>
     </div>
   );
 }

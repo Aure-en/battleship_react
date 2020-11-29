@@ -12,6 +12,7 @@ function Gameboard({
   currentPlayer,
   changeLastShipSunk,
   changePlayerStats,
+  difficulty
 }) {
   // -- STATE VARIABLES AND REFS --
 
@@ -732,7 +733,7 @@ function Gameboard({
   // 2nd condition is added so that the computer only plays on its opponent's board.
   useEffect(() => {
     if (currentPlayer === 2 && player === 1) {
-      computerNormalPlay();
+      difficulty === 'normal' ? computerNormalPlay() : computerEasyPlay();
     }
   }, [currentPlayer]);
 
