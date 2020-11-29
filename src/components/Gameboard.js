@@ -70,6 +70,12 @@ function Gameboard({
     useRef(null),
   ];
 
+  // States variables used to improve computer's plays
+  const [firstHit, setFirstHit] = useState({ x: '', y: '' });
+  const [previousHit, setPreviousHit] = useState({ x: '', y: '' });
+  const [directions, setDirections] = useState([]);
+  const [previousDirection, setPreviousDirection] = useState({});
+
   // -- FLEET PLACEMENT --
 
   /* 1. Placing ships randomly :
@@ -495,7 +501,7 @@ function Gameboard({
     handleTurn(event.target.dataset.x, event.target.dataset.y);
   };
 
-  const computerPlay = () => {
+  const computerEasyPlay = () => {
     let coordinates;
     do {
       coordinates = generateRandomPlay();
@@ -577,11 +583,156 @@ function Gameboard({
     });
   };
 
+  const computerNormalPlay = () => {
+    let coordinates;
+    let currentDirections = [...directions];
+
+    do {
+      // If the computer has no indication about a potential ship position, it just hits random spaces.
+      if (currentDirections.length === 0) {
+        coordinates = generateRandomPlay();
+
+        // Otherwise, we follow the first direction of the directions array.
+      } else {
+        if (JSON.stringify(previousHit) === JSON.stringify(firstHit)) {
+          coordinates = {
+            x: firstHit.x + currentDirections[0].x,
+            y: firstHit.y + currentDirections[0].y,
+          };
+        } else {
+          // If the computer found a ship on an adjacent space, it keeps going in the same direction.
+          if (currentDirections[0] === previousDirection) {
+            coordinates = {
+              x: previousHit.x + currentDirections[0].x,
+              y: previousHit.y + currentDirections[0].y,
+            };
+            // If the computer didn't find a ship when he went in the previous direction, it tries another adjacent space.
+          } else {
+            coordinates = {
+              x: firstHit.x + currentDirections[0].x,
+              y: firstHit.y + currentDirections[0].y,
+            };
+          }
+        }
+        if (
+          coordinates.x < 0 ||
+          coordinates.x > size ||
+          coordinates.y < 0 ||
+          coordinates.y > size ||
+          board[coordinates.x][coordinates.y] === 'X' ||
+          board[coordinates.x][coordinates.y] === 'O'
+        ) {
+          currentDirections = currentDirections.slice(1);
+        }
+      }
+    } while (
+      coordinates.x < 0 ||
+      coordinates.x > size ||
+      coordinates.y < 0 ||
+      coordinates.y > size ||
+      board[coordinates.x][coordinates.y] === 'X' ||
+      board[coordinates.x][coordinates.y] === 'O'
+    );
+    setDirections(currentDirections);
+    setPreviousDirection(currentDirections[0]);
+    handleComputerTurn(coordinates.x, coordinates.y);
+  };
+
+  const handleComputerTurn = (x, y) => {
+    // If the cell is empty:
+    // - We mark the cell as played.
+    // - If checking this cell was the result of searching adjacents spaces, we delete the direction we were searching in.
+    if (board[x][y] === null) {
+      setBoard((prevBoard) => {
+        prevBoard[x][y] = 'X';
+        return prevBoard;
+      });
+      setDirections((prevDirections) => {
+        let directions = [...prevDirections];
+        directions = directions.slice(1);
+        return directions;
+      });
+    }
+
+    /* If the cell contains a ship:
+    1. The cell is marked with a 'O'
+    2. Check if the ship sunk
+    3. If it sunk, check if it was the last ship.
+    */
+
+    if (typeof board[x][y] === 'number') {
+      // Marks the cell with a 'O'
+      const currentBoard = [...board];
+      currentBoard[x][y] = 'O';
+      setBoard(currentBoard);
+
+      // If finding the ship was the result of a random attack:
+      // - Tells the computer to remember this space
+      // - Tells the computer to search in adjacent spaces during the next few turns (top, bottom, left, right)
+      // If it was the result of searching adjacents spaces:
+      // - The computer keeps going in the same direction by remembering the direction it came from and the space it's just hit.
+      if (directions.length === 0) {
+        setFirstHit({ x, y });
+        setDirections([
+          { x: 0, y: 1 },
+          { x: 0, y: -1 },
+          { x: -1, y: 0 },
+          { x: 1, y: 0 },
+        ]);
+      }
+
+      // Check if the ship sunk
+      // If it didn't sink, we keep on playing normally.
+      // If it sunk, we check if there are ships left.
+      // We also announce that a ship fell.
+      // Tells the computer to not look in adjacent spaces anymore.
+      if (!currentBoard.flat().includes(shipsChart[x][y])) {
+        changeLastShipSunk(player, shipsChart[x][y]);
+        setDirections([]);
+        setFirstHit({ x: '', y: '' });
+        setPreviousHit({ x: '', y: '' });
+
+        // There are ships left: we go to the next turn.
+        if (
+          currentBoard.flat().filter((item) => typeof item === 'number')
+            .length === 0
+        ) {
+          changeGameState('end');
+          setPlayerStats((prevStats) => {
+            const stats = Object.assign({}, prevStats);
+            stats.wins = prevStats.wins + 1;
+            return stats;
+          });
+        }
+      }
+    }
+
+    // Remember the computer's latest hit
+    setPreviousHit({ x, y });
+
+    // At the end of each turn, swap player and update stats.
+    changeCurrentPlayer();
+    setPlayerStats((prevStats) => {
+      const stats = Object.assign({}, prevStats);
+      stats.hits = prevStats.hits + 1;
+      stats.accuracy = board.flat().filter((cell) => cell === 'O').length;
+      stats.fleet =
+        shipsData.reduce((sum, current) => sum + +current.length, 0) -
+        board.flat().filter((cell) => cell === 'O').length;
+      stats.shipsSunk = Array.from(
+        new Set(
+          shipsChart.flat().filter((ship) => !board.flat().includes(ship))
+        )
+      );
+      return stats;
+    });
+  };
+
   // After the player plays, the computer plays.
   // 2nd condition is added so that the computer only plays on its opponent's board.
   useEffect(() => {
     if (currentPlayer === 2 && player === 1) {
-      computerPlay();
+      computerNormalPlay();
     }
   }, [currentPlayer]);
 
