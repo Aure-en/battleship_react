@@ -12,7 +12,8 @@ function Gameboard({
   currentPlayer,
   changeLastShipSunk,
   changePlayerStats,
-  difficulty
+  difficulty,
+  changeGameResult
 }) {
   // -- STATE VARIABLES AND REFS --
 
@@ -555,12 +556,7 @@ function Gameboard({
           currentBoard.flat().filter((item) => typeof item === 'number')
             .length === 0
         ) {
-          changeGameState('end');
-          setPlayerStats((prevStats) => {
-            const stats = Object.assign({}, prevStats);
-            stats.wins = prevStats.wins + 1;
-            return stats;
-          });
+          endGame()
         }
       }
     }
@@ -697,12 +693,7 @@ function Gameboard({
           currentBoard.flat().filter((item) => typeof item === 'number')
             .length === 0
         ) {
-          changeGameState('end');
-          setPlayerStats((prevStats) => {
-            const stats = Object.assign({}, prevStats);
-            stats.wins = prevStats.wins + 1;
-            return stats;
-          });
+          endGame()
         }
       }
     }
@@ -727,6 +718,21 @@ function Gameboard({
       return stats;
     });
   };
+
+  const endGame = () => {
+    changeGameState('end');
+    setPlayerStats((prevStats) => {
+      const stats = Object.assign({}, prevStats);
+      stats.wins = prevStats.wins + 1;
+      return stats;
+    });
+
+    if (player === 2) {
+      changeGameResult('victory')
+    } else {
+      changeGameResult('defeat')
+    }
+  }
 
   // After the player plays, the computer plays.
   // 2nd condition is added so that the computer only plays on its opponent's board.

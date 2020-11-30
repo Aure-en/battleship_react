@@ -17,12 +17,20 @@
   background-color: $color-secondary;
 }
 
+.cell--sunk {
+  background-color: $color-tertiary;
+}
+
 .cell--1 {
   @include cell-size(4vh);
 }
 
 .cell--2 {
   @include cell-size(5vh);
+}
+
+.cell--3 {
+  @include cell-size(1vh);
 }
 
 .mark--o,

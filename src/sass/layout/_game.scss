@@ -1,10 +1,10 @@
 .game {
 	height: 90%;
-	width: 100%;
   display: grid;
-  grid-template: repeat(3, auto) / repeat(2, 1fr);
+  grid-template: repeat(3, auto) / repeat(2, auto);
+  grid-column-gap: 10vw;
   align-items: start;
-  justify-items: center
+  justify-items: space-around;
 }
 
 .container--2 {

@@ -1,0 +1,46 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $color-secondary;
+  padding: 1rem 0;
+}
+
+.settings__difficulty {
+  display: flex;
+  align-items: center;
+}
+
+.stats__stat {
+  display: flex;
+  align-items: center;
+}
+
+.stats__outer_bar {
+  border: 1px solid $color-secondary;
+  width: 15vh;
+  height: 1.15vh;
+}
+
+.stats__inner_bar {
+  height: 100%;
+  background-color: $color-secondary;
+}
+
+.stats__name {
+  width: 8rem;
+  margin-right: 1rem;
+  text-transform: uppercase;
+  font-size: 0.825rem;
+}
+
+.stats__value {
+  width: 2rem;
+  margin-right: 1rem;
+}

@@ -1,0 +1,22 @@
+button {
+  border: none;
+  background: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.btn {
+  border: 1px solid $color-secondary;
+  padding: .5rem 1rem;
+  margin: 1rem;
+  color: $color-secondary;
+  text-transform: uppercase;
+  cursor: pointer;
+  
+  &:hover {
+    box-shadow: 0 0 5px $color-secondary;
+    text-shadow: 0 0 1px $color-secondary;
+  }
+}

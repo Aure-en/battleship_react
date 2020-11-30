@@ -11,6 +11,8 @@ function Game() {
   3. End: display the result / winner.
   */
   const [gameState, setGameState] = useState('initialization');
+  const [gameResult, setGameResult] = useState('')
+  const [gameNumber, setGameNumber] = useState(0);
   const [difficulty, setDifficulty] = useState('normal');
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [lastShipSunk, setLastShipSunk] = useState({ player: '', ship: '' });
@@ -32,6 +34,11 @@ function Game() {
   const changeGameState = (gameState) => {
     setGameState(gameState);
   };
+
+  const changeGameResult = (result) => {
+    setGameResult(result);
+    setGameNumber(prevNumber => prevNumber + 1);
+  }
 
   const changeCurrentPlayer = () => {
     setCurrentPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
@@ -65,6 +72,7 @@ function Game() {
         currentPlayer={currentPlayer}
         changeLastShipSunk={changeLastShipSunk}
         changePlayerStats={changePlayer1Stats}
+        changeGameResult={changeGameResult}
         difficulty={difficulty}
       />
       <Gameboard
@@ -76,11 +84,57 @@ function Game() {
         currentPlayer={currentPlayer}
         changeLastShipSunk={changeLastShipSunk}
         changePlayerStats={changePlayer2Stats}
+        changeGameResult={changeGameResult}
         difficulty={difficulty}
       />
-      <div className="settings">
-        <Stats player1={player1Stats} player2={player2Stats}/>
-        <button onClick={() => setDifficulty(difficulty === 'normal' ? 'easy' : 'normal')}>{difficulty}</button>
+      <div className='settings'>
+        <Stats player1={player1Stats} player2={player2Stats} gameNumber={gameNumber} />
+
+        <div className='settings__difficulty'>
+          <button
+            onClick={() =>
+              setDifficulty(difficulty === 'normal' ? 'easy' : 'normal')
+            }
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='icon icon-tabler icon-tabler-caret-left'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              stroke-width='1'
+              stroke='#02ffff'
+              fill='#02ffff'
+              stroke-linecap='round'
+              stroke-linejoin='round'
+            >
+              <path stroke='none' d='M0 0h24v24H0z' fill='none' />
+              <path d='M18 15l-6-6l-6 6h12' transform='rotate(270 12 12)' />
+            </svg>
+          </button>
+          {difficulty}
+          <button
+            onClick={() =>
+              setDifficulty(difficulty === 'normal' ? 'easy' : 'normal')
+            }
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='icon icon-tabler icon-tabler-caret-right'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              stroke-width='1'
+              stroke='#02ffff'
+              fill='#02ffff'
+              stroke-linecap='round'
+              stroke-linejoin='round'
+            >
+              <path stroke='none' d='M0 0h24v24H0z' fill='none' />
+              <path d='M18 15l-6-6l-6 6h12' transform='rotate(90 12 12)' />
+            </svg>
+          </button>
+        </div>
       </div>
       <Message
         gameState={gameState}
@@ -88,6 +142,7 @@ function Game() {
         lastShipSunk={lastShipSunk}
         changeGameState={changeGameState}
         reset={reset}
+        gameResult={gameResult}
       />
     </div>
   );
