@@ -56,29 +56,31 @@ function Game() {
 
   return (
     <div className='game'>
-      <div className='game__boards'>
-        <Gameboard
-          size={10}
-          gameState={gameState}
-          player={1}
-          changeGameState={changeGameState}
-          changeCurrentPlayer={changeCurrentPlayer}
-          currentPlayer={currentPlayer}
-          changeLastShipSunk={changeLastShipSunk}
-          changePlayerStats={changePlayer1Stats}
-          difficulty={difficulty}
-        />
-        <Gameboard
-          size={10}
-          gameState={gameState}
-          player={2}
-          changeGameState={changeGameState}
-          changeCurrentPlayer={changeCurrentPlayer}
-          currentPlayer={currentPlayer}
-          changeLastShipSunk={changeLastShipSunk}
-          changePlayerStats={changePlayer2Stats}
-          difficulty={difficulty}
-        />
+      <Gameboard
+        size={10}
+        gameState={gameState}
+        player={1}
+        changeGameState={changeGameState}
+        changeCurrentPlayer={changeCurrentPlayer}
+        currentPlayer={currentPlayer}
+        changeLastShipSunk={changeLastShipSunk}
+        changePlayerStats={changePlayer1Stats}
+        difficulty={difficulty}
+      />
+      <Gameboard
+        size={10}
+        gameState={gameState}
+        player={2}
+        changeGameState={changeGameState}
+        changeCurrentPlayer={changeCurrentPlayer}
+        currentPlayer={currentPlayer}
+        changeLastShipSunk={changeLastShipSunk}
+        changePlayerStats={changePlayer2Stats}
+        difficulty={difficulty}
+      />
+      <div className="settings">
+        <Stats player1={player1Stats} player2={player2Stats}/>
+        <button onClick={() => setDifficulty(difficulty === 'normal' ? 'easy' : 'normal')}>{difficulty}</button>
       </div>
       <Message
         gameState={gameState}
@@ -87,8 +89,6 @@ function Game() {
         changeGameState={changeGameState}
         reset={reset}
       />
-      <Stats player1={player1Stats} player2={player2Stats}/>
-      <button onClick={() => setDifficulty(difficulty === 'normal' ? 'easy' : 'normal')}>{difficulty}</button>
     </div>
   );
 }

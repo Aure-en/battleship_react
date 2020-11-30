@@ -1,14 +1,26 @@
 .ship {
   position: absolute;
-  border-bottom: 1px solid $color-primary;
-  border-right: 1px solid $color-primary;
   display: flex;
+  background-color: $color-secondary;
+
+  > .cell--ship {
+    margin-right: 3px;
+  }
+
+  .cell--ship:last-child {
+    margin-right: 0;
+  }
 }
 
 .ship--vertical {
   flex-direction: column;
-}
 
-// .ship--enemy {
-//   display: none;
-// }
+  > .cell--ship {
+    margin-right: 0;
+    margin-bottom: 3px;
+  }
+
+  .cell--ship:last-child {
+    margin-bottom: 0;
+  }
+}

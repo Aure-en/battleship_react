@@ -170,8 +170,7 @@ function Gameboard({
     } / ${ship.coordinates.x + ship.length + 1} / ${
       ship.coordinates.y + ship.width + 1
     }`;
-    shipElem.current.style.flexDirection =
-      ship.length > ship.width ? 'column' : 'row';
+    ship.length > ship.width ? shipElem.current.classList.add('ship--vertical') : shipElem.current.classList.remove('ship--vertical');
   };
 
   useEffect(() => {
@@ -783,7 +782,7 @@ function Gameboard({
 
   return (
     <div
-      className='container'
+      className={`container container--${player}`}
       onMouseDown={(event) => {
         if (gameState === 'initialization') {
           dragOnMouseDown(event);
@@ -815,6 +814,7 @@ function Gameboard({
                 playerPlay={playerPlay}
                 gameState={gameState}
                 player={player}
+                board={true}
               />
             ))}
           </React.Fragment>
@@ -830,6 +830,7 @@ function Gameboard({
             id={ship.id}
             key={ship.id}
             ref={shipsRef[index]}
+            player={player}
           />
         ))}
     </div>

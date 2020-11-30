@@ -1,10 +1,36 @@
+@mixin cell-size($size) {
+  width: $size;
+  height: $size;
+}
+
 .cell {
-  border-top: 1px solid $color-primary;
-  border-left: 1px solid $color-primary;
-  width: 30px;
-  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell--board {
+  border: 1px solid $color-secondary;
 }
 
 .cell--ship {
   background-color: $color-secondary;
+}
+
+.cell--1 {
+  @include cell-size(4vh);
+}
+
+.cell--2 {
+  @include cell-size(5vh);
+}
+
+.mark--o,
+.mark--x {
+  @include cell-size(3vh);
+  color: $color-secondary;
+}
+
+.mark--o--1 {
+  color: $color-primary;
 }
