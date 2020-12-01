@@ -4,6 +4,7 @@
   grid-template: repeat(10, 1fr) / repeat(10, 1fr);
   grid-gap: 3px;
   box-shadow: 0 0 15px $color-secondary;
+  margin: 1rem;
 }
 
 .board {

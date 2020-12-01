@@ -4,17 +4,23 @@
 }
 
 .stats {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border: 1px solid $color-secondary;
-  padding: 1rem 0;
+  outline: 1px solid $color-secondary;
+  outline-offset: 3px;
+  padding: 1rem;
 }
 
 .settings__difficulty {
   display: flex;
+  justify-content: center;
   align-items: center;
+  text-transform: uppercase;
+  margin: 1rem;
 }
 
 .stats__stat {
@@ -37,7 +43,6 @@
   width: 8rem;
   margin-right: 1rem;
   text-transform: uppercase;
-  font-size: 0.825rem;
 }
 
 .stats__value {

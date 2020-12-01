@@ -70,7 +70,7 @@ function Stats({ player1, player2, gameNumber }) {
         <div className='stats__outer_bar'>
           <div className='stats__inner_bar'
           style={{
-            width: `${player2.wins / gameNumber || 0}vh`,
+            width: `${player2.wins / gameNumber * 100 * 15 / 100 || 0}vh`,
           }}></div>
         </div>
       </div>

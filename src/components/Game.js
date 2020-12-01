@@ -98,15 +98,15 @@ function Game() {
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
-              class='icon icon-tabler icon-tabler-caret-left'
+              className='icon icon-tabler icon-tabler-caret-left'
               width='20'
               height='20'
               viewBox='0 0 24 24'
-              stroke-width='1'
+              strokeWidth='1'
               stroke='#02ffff'
               fill='#02ffff'
-              stroke-linecap='round'
-              stroke-linejoin='round'
+              strokeLinecap='round'
+              strokeLinejoin='round'
             >
               <path stroke='none' d='M0 0h24v24H0z' fill='none' />
               <path d='M18 15l-6-6l-6 6h12' transform='rotate(270 12 12)' />
@@ -120,15 +120,15 @@ function Game() {
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
-              class='icon icon-tabler icon-tabler-caret-right'
+              className='icon icon-tabler icon-tabler-caret-right'
               width='20'
               height='20'
               viewBox='0 0 24 24'
-              stroke-width='1'
+              strokeWidth='1'
               stroke='#02ffff'
               fill='#02ffff'
-              stroke-linecap='round'
-              stroke-linejoin='round'
+              strokeLinecap='round'
+              strokeLinejoin='round'
             >
               <path stroke='none' d='M0 0h24v24H0z' fill='none' />
               <path d='M18 15l-6-6l-6 6h12' transform='rotate(90 12 12)' />

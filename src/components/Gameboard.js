@@ -631,7 +631,7 @@ function Gameboard({
     );
     setDirections(currentDirections);
     setPreviousDirection(currentDirections[0]);
-    handleComputerTurn(coordinates.x, coordinates.y);
+    setTimeout(() => handleComputerTurn(coordinates.x, coordinates.y), 300);
   };
 
   const handleComputerTurn = (x, y) => {

@@ -30,8 +30,8 @@ function Message({ gameState, changeGameState, currentPlayer, reset, lastShipSun
 
       {gameState === 'end' &&
       <>
-        <div className="test__end">
-          {gameResult}<br/>
+        <div className="text__end">
+          <div className="text__result">{gameResult}</div>
           Would you like to play again?</div>
 
       <button type='button' className="btn" onClick={reset}>Play again</button>
