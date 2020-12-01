@@ -13,7 +13,7 @@ function Gameboard({
   changeLastShipSunk,
   changePlayerStats,
   difficulty,
-  changeGameResult
+  changeGameResult,
 }) {
   // -- STATE VARIABLES AND REFS --
 
@@ -171,7 +171,9 @@ function Gameboard({
     } / ${ship.coordinates.x + ship.length + 1} / ${
       ship.coordinates.y + ship.width + 1
     }`;
-    ship.length > ship.width ? shipElem.current.classList.add('ship--vertical') : shipElem.current.classList.remove('ship--vertical');
+    ship.length > ship.width
+      ? shipElem.current.classList.add('ship--vertical')
+      : shipElem.current.classList.remove('ship--vertical');
   };
 
   useEffect(() => {
@@ -556,27 +558,14 @@ function Gameboard({
           currentBoard.flat().filter((item) => typeof item === 'number')
             .length === 0
         ) {
-          endGame()
+          endGame();
         }
       }
     }
 
     // At the end of each turn, swap player and update stats.
     changeCurrentPlayer();
-    setPlayerStats((prevStats) => {
-      const stats = Object.assign({}, prevStats);
-      stats.hits = prevStats.hits + 1;
-      stats.accuracy = board.flat().filter((cell) => cell === 'O').length;
-      stats.fleet =
-        shipsData.reduce((sum, current) => sum + +current.length, 0) -
-        board.flat().filter((cell) => cell === 'O').length;
-      stats.shipsSunk = Array.from(
-        new Set(
-          shipsChart.flat().filter((ship) => !board.flat().includes(ship))
-        )
-      );
-      return stats;
-    });
+    updateStats();
   };
 
   const computerNormalPlay = () => {
@@ -693,7 +682,7 @@ function Gameboard({
           currentBoard.flat().filter((item) => typeof item === 'number')
             .length === 0
         ) {
-          endGame()
+          endGame();
         }
       }
     }
@@ -703,6 +692,25 @@ function Gameboard({
 
     // At the end of each turn, swap player and update stats.
     changeCurrentPlayer();
+    updateStats();
+  };
+
+  const endGame = () => {
+    changeGameState('end');
+    setPlayerStats((prevStats) => {
+      const stats = Object.assign({}, prevStats);
+      stats.wins = prevStats.wins + 1;
+      return stats;
+    });
+
+    if (player === 2) {
+      changeGameResult('victory');
+    } else {
+      changeGameResult('defeat');
+    }
+  };
+
+  const updateStats = () => {
     setPlayerStats((prevStats) => {
       const stats = Object.assign({}, prevStats);
       stats.hits = prevStats.hits + 1;
@@ -718,21 +726,6 @@ function Gameboard({
       return stats;
     });
   };
-
-  const endGame = () => {
-    changeGameState('end');
-    setPlayerStats((prevStats) => {
-      const stats = Object.assign({}, prevStats);
-      stats.wins = prevStats.wins + 1;
-      return stats;
-    });
-
-    if (player === 2) {
-      changeGameResult('victory')
-    } else {
-      changeGameResult('defeat')
-    }
-  }
 
   // After the player plays, the computer plays.
   // 2nd condition is added so that the computer only plays on its opponent's board.

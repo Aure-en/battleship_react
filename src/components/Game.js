@@ -11,7 +11,7 @@ function Game() {
   3. End: display the result / winner.
   */
   const [gameState, setGameState] = useState('initialization');
-  const [gameResult, setGameResult] = useState('')
+  const [gameResult, setGameResult] = useState('');
   const [gameNumber, setGameNumber] = useState(0);
   const [difficulty, setDifficulty] = useState('normal');
   const [currentPlayer, setCurrentPlayer] = useState(1);
@@ -37,8 +37,8 @@ function Game() {
 
   const changeGameResult = (result) => {
     setGameResult(result);
-    setGameNumber(prevNumber => prevNumber + 1);
-  }
+    setGameNumber((prevNumber) => prevNumber + 1);
+  };
 
   const changeCurrentPlayer = () => {
     setCurrentPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
@@ -88,7 +88,11 @@ function Game() {
         difficulty={difficulty}
       />
       <div className='settings'>
-        <Stats player1={player1Stats} player2={player2Stats} gameNumber={gameNumber} />
+        <Stats
+          player1={player1Stats}
+          player2={player2Stats}
+          gameNumber={gameNumber}
+        />
 
         <div className='settings__difficulty'>
           <button

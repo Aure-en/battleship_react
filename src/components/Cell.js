@@ -33,7 +33,9 @@ function Cell({
           className='icon icon-tabler icon-tabler-circle mark--o'
           viewBox='0 0 24 24'
           strokeWidth='1.5'
-          stroke={player === 1 || (player === 2 && isShipSunk) ? '#00131a' : '#02ffff'}
+          stroke={
+            player === 1 || (player === 2 && isShipSunk) ? '#00131a' : '#02ffff'
+          }
           fill='none'
           strokeLinecap='round'
           strokeLinejoin='round'

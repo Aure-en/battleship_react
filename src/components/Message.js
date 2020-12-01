@@ -1,45 +1,66 @@
-import React from 'react'
-import shipsData from '../data/shipsData'
+import React from 'react';
+import shipsData from '../data/shipsData';
 
-function Message({ gameState, changeGameState, currentPlayer, reset, lastShipSunk, gameResult }) {
+function Message({
+  gameState,
+  changeGameState,
+  currentPlayer,
+  reset,
+  lastShipSunk,
+  gameResult,
+}) {
   return (
-    <div className="text">
+    <div className='text'>
+      {gameState === 'initialization' && (
+        <>
+          <div className='instructions'>
+            Welcome, Lieutenant!
+            <br />
+            In such a battle, preparations are crucial. <br />
+            Take your time to think of the perfect strategy to defend your
+            ships.
+            <br />
+            Drag your ships to place them, and double click to rotate them.
+            <br />
+            Engage in combat whenever you feel ready.
+          </div>
 
-      {gameState === 'initialization' &&
-      <>
-        <div className="instructions">
-          Welcome, Lieutenant!<br/>
-          In such a battle, preparations are crucial. <br />
-          Take your time to think of the perfect strategy to defend your ships.<br/>
-          Drag your ships to place them, and double click to rotate them.<br/>
-          Engage in combat whenever you feel ready.
-        </div>
+          <button
+            type='button'
+            className='btn'
+            onClick={() => changeGameState('game')}
+          >
+            To Battle!
+          </button>
+        </>
+      )}
 
-        <button type='button' className="btn" onClick={() => changeGameState('game')}>To Battle!</button>
-      </>
-      }
+      {gameState === 'game' && (
+        <>
+          <div className='text__player'>Current player: {currentPlayer}</div>
+          {lastShipSunk.player && (
+            <div className='text__ship'>
+              Lieutenant {lastShipSunk.player}'s{' '}
+              {shipsData[lastShipSunk.ship].name} sunk.
+            </div>
+          )}
+        </>
+      )}
 
-      {gameState === 'game' &&
-      <>
-        <div className="text__player">Current player: {currentPlayer}</div>
-        {lastShipSunk.player &&
-          <div className="text__ship">Lieutenant {lastShipSunk.player}'s {shipsData[lastShipSunk.ship].name} sunk.</div>
-        }
-      </>
-      }
+      {gameState === 'end' && (
+        <>
+          <div className='text__end'>
+            <div className='text__result'>{gameResult}</div>
+            Would you like to play again?
+          </div>
 
-      {gameState === 'end' &&
-      <>
-        <div className="text__end">
-          <div className="text__result">{gameResult}</div>
-          Would you like to play again?</div>
-
-      <button type='button' className="btn" onClick={reset}>Play again</button>
-      </>
-      }
-
+          <button type='button' className='btn' onClick={reset}>
+            Play again
+          </button>
+        </>
+      )}
     </div>
-  )
+  );
 }
 
-export default Message
+export default Message;
